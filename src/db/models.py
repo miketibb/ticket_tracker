@@ -7,9 +7,9 @@ from sqlalchemy import (
     ForeignKey,
     UniqueConstraint,
 )
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone
 
 Base = declarative_base()
 
@@ -27,8 +27,12 @@ class Event(Base):
     city = Column(String)
     state = Column(String)
     url = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
 
     # Relationships
     price_snapshots = relationship(
@@ -49,7 +53,9 @@ class PriceSnapshot(Base):
     min_price = Column(Float)
     max_price = Column(Float)
     currency = Column(String, default="USD")
-    snapshot_time = Column(DateTime, default=datetime.utcnow, nullable=False)
+    snapshot_time = Column(
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
+    )
 
     # Relationships
     event = relationship("Event", back_populates="price_snapshots")
@@ -72,7 +78,7 @@ class UserInterest(Base):
     event_id = Column(String, ForeignKey("events.id"), nullable=False)
     user_email = Column(String, nullable=False)
     target_price = Column(Float)  # Optional: alert when price drops below this
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
         return f"<UserInterest(event_id={self.event_id}, email={self.user_email})>"
