@@ -3,30 +3,6 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from src.db.models import Base, Event, PriceSnapshot, UserInterest
-from src.db.database import Database
-
-
-@pytest.fixture
-def test_db():
-    """Create a test database in memory"""
-    db = Database("sqlite:///:memory:")
-    db.create_tables()
-    return db
-
-
-@pytest.fixture
-def sample_event():
-    """Sample event for testing"""
-    return Event(
-        id="test_event_123",
-        name="Test Concert",
-        event_type="Music/Rock",
-        start_date=datetime(2024, 12, 31, 20, 0, 0),
-        venue_name="Test Venue",
-        city="Los Angeles",
-        state="CA",
-        url="https://example.com/event",
-    )
 
 
 class TestDatabase:
