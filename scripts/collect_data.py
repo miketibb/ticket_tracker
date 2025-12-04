@@ -23,8 +23,7 @@ def parse_arguments():
     """Parse command-line arguments"""
     parser = argparse.ArgumentParser(description="Collect event data from Ticketmaster")
 
-    # TODO: Add arguments
-    # Hint: parser.add_argument('--city', type=str, help='City name')
+    # Add arguments
     parser.add_argument("--city", type=str, help="City name")
     parser.add_argument("--state", type=str, help="State code (e.g., CA)")
     parser.add_argument("--type", type=str, help="Event classification (e.g., Music)")
@@ -52,7 +51,7 @@ def main():
         )
         sys.exit(1)
 
-    # TODO: Validate configuration
+    # Validate configuration
     try:
         Config.validate()
     except ValueError as e:
