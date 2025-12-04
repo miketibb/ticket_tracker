@@ -3,6 +3,7 @@ from sqlalchemy import (
     Integer,
     String,
     Float,
+    Boolean,
     DateTime,
     ForeignKey,
     UniqueConstraint,
@@ -77,8 +78,21 @@ class UserInterest(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     event_id = Column(String, ForeignKey("events.id"), nullable=False)
     user_email = Column(String, nullable=False)
-    target_price = Column(Float)  # Optional: alert when price drops below this
+    target_price = Column(
+        Float, nullable=True
+    )  # Optional: alert when price drops below this
+    is_active = Column(Boolean, default=True)  # Can stop tracking
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
+    # Prevent duplicate tracking (same user, same event)
+    __table_args__ = (
+        UniqueConstraint("event_id", "user_email", name="uix_event_user"),
+    )
 
     def __repr__(self):
         return f"<UserInterest(event_id={self.event_id}, email={self.user_email})>"
