@@ -36,6 +36,11 @@ def parse_arguments():
     parser.add_argument(
         "--days", type=int, default=30, help="Days from today to search for events"
     )
+    parser.add_argument(
+        "--tracked-only",
+        action="store_true",  # Boolean flag, no value needed
+        help="Only collect data for tracked events (ignores other search params)",
+    )
 
     return parser.parse_args()
 
@@ -44,12 +49,12 @@ def main():
     """Main script logic"""
     # Parse arguments
     args = parse_arguments()
-    if not any([args.keyword, args.city, args.state, args.type]):
-        print("Error: Please provide at least one search parameter")
-        print(
-            "Example: python scripts/collect_data.py --city 'Los Angeles' --type 'Music'"
-        )
-        sys.exit(1)
+    # if not any([args.keyword, args.city, args.state, args.type]):
+    #     print("Error: Please provide at least one search parameter")
+    #     print(
+    #         "Example: python scripts/collect_data.py --city 'Los Angeles' --type 'Music'"
+    #     )
+    #     sys.exit(1)
 
     # Validate configuration
     try:
@@ -91,8 +96,26 @@ def main():
         "size": args.size,
     }
 
+    # Handle tracked-only mode
+    if args.tracked_only:
+        print("Collecting data for tracked events only...")
+        results = collector.collect_events(tracked_only=True)
+
+        print(f"\nProcessed {results['fetched']} tracked events")
+        print(f"  Updated: {results['updated']} events")
+        print(f"  Skipped: {results.get('skipped', 0)} past events")
+        print(f"  Errors: {len(results['errors'])}")
+
+        if results["errors"]:
+            print("\nErrors:")
+            for error in results["errors"]:
+                print(f"  - {error['event_id']}: {error['error']}")
+
+        print("\nDone!")
+        return
+
     # Call collect_events()
-    print(f"Collecting events...")
+    print("Collecting events...")
     results = collector.collect_events(**search_params)
     print()
 
